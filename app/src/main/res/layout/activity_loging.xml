@@ -64,6 +64,8 @@
         android:layout_marginBottom="104dp"
         android:text="断开连接"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="108dp" />
+        tools:layout_editor_absoluteX="108dp"
+        android:visibility="invisible"
+        />
 
 </android.support.constraint.ConstraintLayout>

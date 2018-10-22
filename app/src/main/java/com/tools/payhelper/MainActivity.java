@@ -3,7 +3,6 @@ package com.tools.payhelper;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -200,15 +199,15 @@ public class MainActivity extends Activity {
 				startActivity(new Intent(MainActivity.this,BillListActivity.class));
 			}
 		});
-		findViewById(R.id.btn_chaxun).setOnClickListener(new View.OnClickListener() {//查询
+		findViewById(R.id.btn_exit).setOnClickListener(new View.OnClickListener() {//查询
 			@Override
 			public void onClick(View v) {
 //				String cookei="zone=RZ33B; ALIPAYJSESSIONID=RZ33OFOsEETEj0fileX40CiLlteEvy63mobilegwRZ13; ssl_upgrade=0; spanner=66Nfs4uYUOGLnjElrpaMXrra34qAe212";
 //				tradeOrderQuery(MainActivity.this,cookei);
-//				System.exit(0);
-				Intent intel=new Intent(MainActivity.this,DialogActivity.class);
-				intel.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(intel );
+				System.exit(0);
+//				Intent intel=new Intent(MainActivity.this,DialogActivity.class);
+//				intel.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//				startActivity(intel );
 
 
 			}

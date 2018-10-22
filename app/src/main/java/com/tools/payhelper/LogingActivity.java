@@ -25,6 +25,8 @@ import com.tools.payhelper.utils.URLRequest;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class LogingActivity extends Activity implements View.OnClickListener {
 
@@ -32,6 +34,7 @@ public class LogingActivity extends Activity implements View.OnClickListener {
     private EditText edt_password;
     private String uname;
     private String password;
+    private long lasttime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,16 +90,38 @@ public class LogingActivity extends Activity implements View.OnClickListener {
         if (TextUtils.isEmpty(uname)||TextUtils.isEmpty(password)){
             Toast.makeText(LogingActivity.this,"用户名或密码不能为空",Toast.LENGTH_LONG).show();
         }else {
-            URLRequest.getInstance().send100(ConFigNet.socketip, LogingActivity.this, uname, password);
+            if (System.currentTimeMillis()-lasttime>3000) {
+                lasttime=System.currentTimeMillis();
+                URLRequest.getInstance().send100(ConFigNet.socketip, LogingActivity.this, uname, password);
+            }else{
+                Toast.makeText(LogingActivity.this,"登陆太频繁",Toast.LENGTH_LONG).show();
+            }
         }
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void LogingBack(Logging logging){
-        PreferencesUtils.putBooleanToSPMap(LogingActivity.this, PreferencesUtils.Keys.IS_LOGIN, true);
-        System.out.println("登陆成功");
-        new ConFigNet().savedData(this,uname,password);
-        startActivity(new Intent(this,MainActivity.class));
-        finish();
+
+        String jsonData = logging.getJsonData();
+        JSONObject json= null;
+        try {
+            json = new JSONObject(jsonData);
+            int loginStatus = json.getInt("loginStatus");
+            if (1==loginStatus) {
+                PreferencesUtils.putBooleanToSPMap(LogingActivity.this, PreferencesUtils.Keys.IS_LOGIN, true);
+                System.out.println("登陆成功");
+                new ConFigNet().savedData(this, uname, password);
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+            }else{
+                String message = json.getString("message");
+                Toast.makeText(LogingActivity.this,message,Toast.LENGTH_LONG).show();
+                CustomApplcation.getInstance().setDisConnect(true);
+                MinaClient.getinstance().reLease();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

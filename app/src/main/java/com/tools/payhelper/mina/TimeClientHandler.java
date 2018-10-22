@@ -10,6 +10,7 @@ import com.tools.payhelper.eventbus.AlipayReciveMoney;
 import com.tools.payhelper.eventbus.Logging;
 import com.tools.payhelper.eventbus.NetOffLine;
 import com.tools.payhelper.utils.PreferencesUtils;
+import com.tools.payhelper.utils.URLRequest;
 import com.tools.payhelper.view.DialogActivity;
 
 import org.apache.mina.core.service.IoHandlerAdapter;
@@ -17,6 +18,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
+import org.jsoup.Connection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,8 +66,8 @@ TimeClientHandler extends IoHandlerAdapter {
     public void sessionCreated(IoSession session) throws Exception {
         // TODO Auto-generated method stub
         super.sessionCreated(session);
-        session.getConfig().setWriterIdleTime(5);
-        session.getConfig().setReaderIdleTime(20);
+        session.getConfig().setWriterIdleTime(15);
+        session.getConfig().setReaderIdleTime(35);
 //		}
     }
 
@@ -107,12 +109,18 @@ TimeClientHandler extends IoHandlerAdapter {
                         Logging logging = new Logging(reciveData);
                         String jsonData = logging.getJsonData();
                         JSONObject json=new JSONObject(jsonData);
-                        String opentype = json.getString("payType");
-                        PreferencesUtils.putValueToSPMap(mContext.getApplicationContext(),PreferencesUtils.Keys.TYPE,opentype);
+                        int loginStatus = json.getInt("loginStatus");
+                        if (loginStatus==1) {
+                            String opentype = json.getString("payType");
+                            PreferencesUtils.putValueToSPMap(mContext.getApplicationContext(), PreferencesUtils.Keys.TYPE, opentype);
+                        }
                         EventBus.getDefault().post(logging);
                         break;
                     case 101://心跳包返回
-//						URLRequest.getInstance().send199(ConfigNet.ipaddress,mContext);
+                        int lenth = BaseNetTool.Getint(reciveData, position);
+                        position+=4;
+                        byte[] data = BaseNetTool.getUTF_8(reciveData, position, lenth);
+                        URLRequest.getInstance().send103(mContext,new String(data));
                         break;
                     case 102:
                         int status = BaseNetTool.Getint(reciveData, position);

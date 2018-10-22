@@ -5,6 +5,8 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import pl.com.salsoft.sqlitestudioremote.SQLiteStudioService;
+
 public class CustomApplcation extends Application {
 
 	public static CustomApplcation mInstance;
@@ -15,6 +17,7 @@ public class CustomApplcation extends Application {
 		super.onCreate();
 		context = getApplicationContext();
 		mInstance = this;
+		SQLiteStudioService.instance().start(this);
 	}
 
 	public static CustomApplcation getInstance() {

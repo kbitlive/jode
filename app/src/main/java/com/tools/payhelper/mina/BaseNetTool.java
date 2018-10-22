@@ -66,7 +66,7 @@ public class BaseNetTool {
 		for(int j=0;j<buf.length;j++){//加密
 			buf[j] ^= 255;
 		}
-		byte[] realBuf = new byte[buf.length+5];
+		byte[] realBuf = new byte[buf.length+7];
 		realBuf[0] = 124;
 		//------------------------------4
 		writeInt(buf.length, realBuf, 1);
@@ -75,6 +75,9 @@ public class BaseNetTool {
 		for (i = 0; i < len; i++) {
 			realBuf[5 + i] = buf[i];
 		}
+		realBuf[realBuf.length-2]=36;
+		realBuf[realBuf.length-1]=36;
+
 
 				
 		return realBuf;

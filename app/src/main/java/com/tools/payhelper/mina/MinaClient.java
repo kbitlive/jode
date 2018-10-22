@@ -77,7 +77,15 @@ public class MinaClient {
 						session.close(true);//
 					} else if (status == IdleStatus.WRITER_IDLE) {
 						if (null != MinaClient.getinstance().cf) {
-							URLRequest.getInstance().send101(ConFigNet.socketip,mcontext);
+							try {
+								if (session.isConnected()) {
+									URLRequest.getInstance().send101(ConFigNet.socketip, mcontext);
+								}else{
+									System.out.println("连接不可用");
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
 					}
 //
@@ -140,6 +148,8 @@ public class MinaClient {
 	}
 	public  void reLease(){
 		if (null!=connector){
+			connector.dispose();
+//			cf.getSession().getConfig()
 			connector=null;
 			if (null!=cf){
 				cf.getSession().close(true);
@@ -181,7 +191,7 @@ public class MinaClient {
 	 * @param message
 	 * @throws Exception
 	 */
-	public  void sendMessage(String serviceAddress, byte[] message, Context context, Object cmd) throws Exception {
+	public  void sendMessage(String serviceAddress, byte[] message, Context context) throws Exception {
 		if (null==serviceAddress||"".equals(serviceAddress)){
 //			reconnect(1);
 			return;
@@ -203,8 +213,6 @@ public class MinaClient {
 			if (message.length!=0&&null!=cf.getSession()) {
 				if (null!=tm)tm.setcontext(context);
 				try {
-					cf.getSession().setAttribute(String.valueOf(cmd),cmd);
-					int cmdtest=(int)cmd;
 					if (cf.getSession().isConnected()){
                     WriteFuture writeFuture = cf.getSession().write(IoBuffer.wrap(message)).awaitUninterruptibly();// 等待发送完成
 					}

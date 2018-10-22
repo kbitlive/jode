@@ -53,7 +53,7 @@ public class URLRequest {
                 position+=8;
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,101);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -63,6 +63,22 @@ public class URLRequest {
 
             }
         });
+    }
+    public void send103(final Context context, final String data){
+        cachedThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                TcpParam param=new TcpParam(103);
+                param.write(data);
+                try {
+                    byte[] bytes = BaseNetTool.appendHead2(param.getParam2());
+                    MinaClient.getinstance().sendMessage(ConFigNet.socketip,bytes,context);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
     public void send100(final String sockip, final Context context, final String uname, final String password){
         cachedThreadPool.execute(new Runnable() {
@@ -96,7 +112,7 @@ public class URLRequest {
                 new ConFigNet().savedData(context,uname,password);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,100);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -137,7 +153,7 @@ public class URLRequest {
                 System.out.println("打印url："+wechat_url+"sign："+sign);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,102);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -170,7 +186,7 @@ public class URLRequest {
                 System.out.println("打印url："+wechat_url+"sign:"+sign);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,202);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -192,7 +208,7 @@ public class URLRequest {
                     tcp.write(json.toString());
                     try {
                         byte[] bytes = BaseNetTool.appendHead2(tcp.getParam2());
-                        MinaClient.getinstance().sendMessage(ConFigNet.socketip,bytes,context,210);
+                        MinaClient.getinstance().sendMessage(ConFigNet.socketip,bytes,context);
                     } catch (IOException e) {
                         e.printStackTrace();
                     } catch (Exception e) {
@@ -224,7 +240,7 @@ public class URLRequest {
                 System.out.println("发送服务端金额:"+money);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(tcp.getParam2());
-                    MinaClient.getinstance().sendMessage(sockip, bytes, context, 401);
+                    MinaClient.getinstance().sendMessage(sockip, bytes, context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -245,7 +261,7 @@ public class URLRequest {
                 tcp.writeS(payNumber);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(tcp.getParam2());
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,300);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -277,7 +293,7 @@ public class URLRequest {
                 System.out.println("打印url："+cloud_url+"sign:"+sign);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,302);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -297,7 +313,7 @@ public class URLRequest {
                 position+=4;
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,310);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -317,7 +333,7 @@ public class URLRequest {
                 BaseNetTool.writeInt(311,data,position);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,311);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -337,7 +353,7 @@ public class URLRequest {
 //                BaseNetTool.writeInt(1,data,position);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
-                    MinaClient.getinstance().sendMessage(sockip,bytes,context,199);
+                    MinaClient.getinstance().sendMessage(sockip,bytes,context);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {

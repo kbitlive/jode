@@ -157,7 +157,7 @@ public class Main implements IXposedHookLoadPackage {
     	public void onReceive(Context context, Intent intent) {
     		XposedBridge.log("启动支付宝Activity");
 			String action = intent.getAction();
-			if ("com.payhelper.wechat.start".equals(action)) {
+			if ("com.payhelper.alipay.start".equals(action)) {
 				Intent intent2 = new Intent(context, XposedHelpers.findClass("com.alipay.mobile.payee.ui.PayeeQRSetMoneyActivity", context.getClassLoader()));
 				intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				intent2.putExtra("mark", intent.getStringExtra("mark"));

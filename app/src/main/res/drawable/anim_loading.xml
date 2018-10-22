@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false"
+    >
+    <item android:drawable="@drawable/loding1" android:duration="80"></item>
+    <item android:drawable="@drawable/loding2" android:duration="80"></item>
+    <item android:drawable="@drawable/loding3" android:duration="80"></item>
+    <item android:drawable="@drawable/loding4" android:duration="80"></item>
+    <item android:drawable="@drawable/loding5" android:duration="80"></item>
+    <item android:drawable="@drawable/loding6" android:duration="80"></item>
+    <item android:drawable="@drawable/loding7" android:duration="80"></item>
+    <item android:drawable="@drawable/loding8" android:duration="80"></item>
+    <item android:drawable="@drawable/loding9" android:duration="80"></item>
+    <item android:drawable="@drawable/loding10" android:duration="80"></item>
+    <item android:drawable="@drawable/loding11" android:duration="80"></item>
+    <item android:drawable="@drawable/loding12" android:duration="80"></item>
+
+</animation-list>

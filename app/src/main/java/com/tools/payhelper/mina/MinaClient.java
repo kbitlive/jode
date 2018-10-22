@@ -4,6 +4,8 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.tools.payhelper.ConFigNet;
+import com.tools.payhelper.CustomApplcation;
+import com.tools.payhelper.eventbus.NetOffLine;
 import com.tools.payhelper.utils.URLRequest;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -16,8 +18,10 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
+import org.greenrobot.eventbus.EventBus;
 
 import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -83,6 +87,12 @@ public class MinaClient {
 				public void sessionClosed(NextFilter nextFilter, IoSession session) throws Exception {
 					super.sessionClosed(nextFilter, session);
 					System.out.println("......................掉线了............");
+					EventBus.getDefault().post(new NetOffLine());
+					if (CustomApplcation.getInstance().isDisConnect()){
+						CustomApplcation.getInstance().setDisConnect(false);
+						System.out.println("主动断开与服务器的连接");
+						return;
+					}
 					tag: for(;;){
 						try{
 							Thread.sleep(3000);
@@ -92,12 +102,14 @@ public class MinaClient {
 							if(session.isConnected()){
 								System.out.println(".............................重连成功....................");
 								ConFigNet configNet = new ConFigNet();
-								String uname=configNet.getuname(context,"uname");
-								String pasword=configNet.getuname(context,"pasword");
+								String uname=configNet.getuname(context.getApplicationContext(),"uname");
+								String pasword=configNet.getuname(context.getApplicationContext(),"pasword");
+								System.out.println("打印账号:"+uname+"密码:"+pasword);
 								if (!TextUtils.isEmpty(uname)&&!TextUtils.isEmpty(pasword)){
 									URLRequest.getInstance().send100(configNet.socketip,mcontext,uname,pasword);
+								}else{
+									System.out.println("账号或密码为空");
 								}
-
 								break tag;
 							}
 						}catch(Exception ex){
@@ -129,7 +141,10 @@ public class MinaClient {
 	public  void reLease(){
 		if (null!=connector){
 			connector=null;
-			if (null!=cf)cf.getSession().close(true);
+			if (null!=cf){
+				cf.getSession().close(true);
+				cf.awaitUninterruptibly();
+			}
 			cf=null;
 			tm=null;
 		}

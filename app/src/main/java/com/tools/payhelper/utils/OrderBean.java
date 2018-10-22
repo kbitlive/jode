@@ -68,6 +68,17 @@ public class OrderBean implements Serializable{
 	public void setTime(int time) {
 		this.time = time;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "OrderBean{" +
+				"money='" + money + '\'' +
+				", mark='" + mark + '\'' +
+				", type='" + type + '\'' +
+				", no='" + no + '\'' +
+				", dt='" + dt + '\'' +
+				", result='" + result + '\'' +
+				", time=" + time +
+				'}';
+	}
 }

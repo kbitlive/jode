@@ -64,4 +64,14 @@ public class QrCodeBean implements Serializable{
 		this.dt = dt;
 	}
 
+	@Override
+	public String toString() {
+		return "QrCodeBean{" +
+				"money='" + money + '\'' +
+				", mark='" + mark + '\'' +
+				", type='" + type + '\'' +
+				", payurl='" + payurl + '\'' +
+				", dt='" + dt + '\'' +
+				'}';
+	}
 }

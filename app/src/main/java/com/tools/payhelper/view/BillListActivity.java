@@ -22,8 +22,9 @@ public class BillListActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bill_list);
+        findViewById(R.id.tv_reson).setVisibility(View.VISIBLE);
         DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
-        orderBeans= dbManager.FindPayOrderAll();
+        orderBeans= dbManager.FindFailOrders();
         ListView mlist= (ListView) findViewById(R.id.mlist);
         mlist.setAdapter(new MyAdapter());
 
@@ -51,9 +52,12 @@ public class BillListActivity extends Activity {
             TextView tv_type= (TextView) inflate.findViewById(R.id.tv_type);
             TextView tv_money= (TextView) inflate.findViewById(R.id.tv_money);
             TextView tv_mark= (TextView) inflate.findViewById(R.id.tv_mark);
-
-
-
+            TextView tv_status= (TextView) inflate.findViewById(R.id.tv_status);
+            OrderBean orderBean = orderBeans.get(position);
+            tv_type.setText(orderBean.getType());
+            tv_money.setText(orderBean.getMoney());
+            tv_mark.setText(orderBean.getMark());
+            tv_status.setText(orderBean.getResult());
             return inflate;
         }
     }

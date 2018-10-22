@@ -11,10 +11,28 @@
             backward-compatibility can go here.
         -->
     </style>
-
+    <style name="Theme.ActivityDialog" parent="android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
+    <style name="grayline">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.8dip</item>
+        <item name="android:background">@color/gray</item>
+    </style>
+    <style name="Dialog_Transparent">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>

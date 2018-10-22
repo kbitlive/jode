@@ -206,6 +206,24 @@ public class DBManager {
 		c.close();
 		return list;
 	}
+	public ArrayList<OrderBean> FindFailOrders() {
+		String sql = "SELECT * FROM payorder where result='start'or result LIKE '%errow%'";
+		ArrayList<OrderBean> list = new ArrayList<OrderBean>();
+		Cursor c = ExecSQLForCursor(sql);
+		while (c.moveToNext()) {
+			OrderBean info = new OrderBean();
+			info.setMoney(c.getString(c.getColumnIndex("money")));
+			info.setMark(c.getString(c.getColumnIndex("mark")));
+			info.setType(c.getString(c.getColumnIndex("type")));
+			info.setNo(c.getString(c.getColumnIndex("tradeno")));
+			info.setDt(c.getString(c.getColumnIndex("dt")));
+			info.setResult(c.getString(c.getColumnIndex("result")));
+			info.setTime(c.getInt(c.getColumnIndex("time")));
+			list.add(info);
+		}
+		c.close();
+		return list;
+	}
 	    
     /**
      * 执行SQL，返回一个游标
@@ -221,6 +239,19 @@ public class DBManager {
 		delete("payorder");
 		delete("qrcode");
 		delete("tradeno");
+	}
+	public void delete300(String table){
+		db.beginTransaction();// 开始事务
+		try {
+			this.db.execSQL("delete from "+table+" where _id in (select _id from "+table+" order by _id limit 0,300)");
+			db.setTransactionSuccessful();// 事务成功
+		} finally {
+			db.endTransaction();// 结束事务
+		}
+	}
+	public int getcount(String table){
+		Cursor cursor = ExecSQLForCursor("select _id from " + table);
+		return cursor.getCount();
 	}
 	private void delete(String table) {
 		db.beginTransaction();// 开始事务

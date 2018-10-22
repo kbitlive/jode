@@ -64,7 +64,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
+        android:visibility="gone"
         >
         <Button
             android:layout_width="wrap_content"
@@ -78,7 +78,7 @@
             android:id="@+id/btn_sendserver"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="订单发送记录"
+            android:text="失败记录"
             android:textSize="13sp"
             />
 
@@ -87,7 +87,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="清空"
+            android:text="清空缓存"
             android:textSize="13sp"
             />
 
@@ -96,9 +96,119 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="查询"
+            android:text="退出APP"
             android:textSize="13sp"
             />
+
+    </LinearLayout>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    >
+
+<RadioGroup
+    android:id="@+id/rd_group"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    >
+    <RadioButton
+        android:id="@+id/rb_ali"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="开启支付宝" />
+    <RadioButton
+        android:id="@+id/rb_wechat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="开启微信"
+        android:enabled="false"
+        />
+    <RadioButton
+        android:id="@+id/rb_off"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="关闭所有通道" />
+</RadioGroup>
+</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        >
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_weight="1"
+    >
+    <TextView
+        android:id="@+id/server_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="在线"
+        android:textColor="@color/main_blue"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="服务器"
+        android:layout_marginTop="5dp"
+        />
+
+</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1"
+            >
+            <TextView
+                android:id="@+id/tv_alipay_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="在线"
+                android:textColor="@color/main_blue"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="支付宝"
+                android:layout_marginTop="5dp"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1"
+            >
+            <TextView
+                android:id="@+id/tv_wechatpay_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="在线"
+                android:textColor="@color/main_blue"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="微信"
+                />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 
@@ -115,7 +225,9 @@
             android:gravity="top|left"
             android:padding="10dip"
             android:text="日志输出:"
-            android:textColor="#00FF00" />
+            android:textColor="#00FF00"
+            android:visibility="gone"
+            />
     </ScrollView>
 
 </LinearLayout>

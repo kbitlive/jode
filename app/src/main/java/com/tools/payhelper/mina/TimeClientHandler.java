@@ -2,13 +2,21 @@ package com.tools.payhelper.mina;
 
 
 import android.content.Context;
+import android.content.Intent;
+
+import com.tools.payhelper.CustomApplcation;
+import com.tools.payhelper.MainActivity;
 import com.tools.payhelper.eventbus.AlipayReciveMoney;
 import com.tools.payhelper.eventbus.Logging;
+import com.tools.payhelper.eventbus.NetOffLine;
+import com.tools.payhelper.utils.PreferencesUtils;
+import com.tools.payhelper.view.DialogActivity;
 
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +64,8 @@ TimeClientHandler extends IoHandlerAdapter {
     public void sessionCreated(IoSession session) throws Exception {
         // TODO Auto-generated method stub
         super.sessionCreated(session);
-        session.getConfig().setWriterIdleTime(45);
-        session.getConfig().setReaderIdleTime(99);
+        session.getConfig().setWriterIdleTime(5);
+        session.getConfig().setReaderIdleTime(20);
 //		}
     }
 
@@ -67,6 +75,7 @@ TimeClientHandler extends IoHandlerAdapter {
         // TODO Auto-generated method stub
         super.exceptionCaught(session, cause);
         System.out.println("断线了");
+        EventBus.getDefault().post(new NetOffLine());
         session.close(true);
     }
 
@@ -91,14 +100,30 @@ TimeClientHandler extends IoHandlerAdapter {
                 }
                 int position = 0;
                 int cmd = BaseNetTool.Getint(reciveData, position);
-                System.out.println("收到cmd。。。。。。。" + cmd);
+                System.out.println("收到cmd................." + cmd+".....................length:"+length);
                 position += 4;
                 switch (cmd) {
                     case 100:
-                        EventBus.getDefault().post(new Logging(reciveData));
+                        Logging logging = new Logging(reciveData);
+                        String jsonData = logging.getJsonData();
+                        JSONObject json=new JSONObject(jsonData);
+                        String opentype = json.getString("payType");
+                        PreferencesUtils.putValueToSPMap(mContext.getApplicationContext(),PreferencesUtils.Keys.TYPE,opentype);
+                        EventBus.getDefault().post(logging);
                         break;
                     case 101://心跳包返回
 //						URLRequest.getInstance().send199(ConfigNet.ipaddress,mContext);
+                        break;
+                    case 102:
+                        int status = BaseNetTool.Getint(reciveData, position);
+                        if (1==status){
+                            CustomApplcation.getInstance().setDisConnect(true);
+                            MinaClient.getinstance().reLease();
+                            PreferencesUtils.putBooleanToSPMap(mContext,PreferencesUtils.Keys.IS_LOGIN,false);
+                            Intent intel=new Intent(mContext,DialogActivity.class);
+                            intel.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            mContext.getApplicationContext().startActivity(intel );
+                        }
                         break;
                     case 202:
                         EventBus.getDefault().post(new AlipayReciveMoney(reciveData));

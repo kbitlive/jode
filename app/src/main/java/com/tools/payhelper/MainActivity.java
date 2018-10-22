@@ -3,6 +3,7 @@ package com.tools.payhelper;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -12,28 +13,37 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.idescout.sql.SqlScoutServer;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 import com.lidroid.xutils.http.client.HttpRequest.HttpMethod;
 import com.tools.payhelper.eventbus.AlipayReciveMoney;
+import com.tools.payhelper.eventbus.Logging;
+import com.tools.payhelper.eventbus.NetOffLine;
 import com.tools.payhelper.utils.AbSharedUtil;
 import com.tools.payhelper.utils.DBManager;
 import com.tools.payhelper.utils.MD5;
 import com.tools.payhelper.utils.OrderBean;
 import com.tools.payhelper.utils.PayHelperUtils;
+import com.tools.payhelper.utils.PreferencesUtils;
 import com.tools.payhelper.utils.QrCodeBean;
 import com.tools.payhelper.utils.URLRequest;
 import com.tools.payhelper.view.BillListActivity;
+import com.tools.payhelper.view.DialogActivity;
 import com.tools.payhelper.view.QrcodeListActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,13 +64,22 @@ public class MainActivity extends Activity {
 	public static String TRADENORECEIVED_ACTION = "com.tools.payhelper.tradenoreceived";
 	public static String LOGINIDRECEIVED_ACTION = "com.tools.payhelper.loginidreceived";
 	public static String NOTIFY_ACTION = "com.tools.payhelper.notify";
+	public final  static String BILLRECEIVED_COOKIE="com.tools.payhelper.cookie";
 	public static int WEBSEERVER_PORT = 8080;
 //	private WebServer mVideoServer;
 	
 	private String currentWechat="";
 	private String currentAlipay="";
 	private String currentQQ="";
-	private DBManager dbManager;
+	public DBManager dbManager;
+	private RadioGroup rd_group;
+	private TextView server_status;
+	private TextView tv_alipay_status;
+	private TextView tv_wechatpay_status;
+	private String opentype;
+	private RadioButton rb_off;
+	private RadioButton rb_ali;
+	private RadioButton rb_wechat;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +90,9 @@ public class MainActivity extends Activity {
 		regist();
 		console=(TextView) findViewById(R.id.console);
 		initdata();
+		findViewById();
 		setListener();
+		initUI();
 //		try {
 //			mVideoServer=new WebServer(this,WEBSEERVER_PORT);
 //            mVideoServer.start();
@@ -95,8 +116,36 @@ public class MainActivity extends Activity {
         intentFilter.addAction(MSGRECEIVED_ACTION);
         intentFilter.addAction(QRCODERECEIVED_ACTION);
         intentFilter.addAction(LOGINIDRECEIVED_ACTION);
+        intentFilter.addAction(BILLRECEIVED_COOKIE);
         registerReceiver(billReceived, intentFilter);
         startService(new Intent(this, DaemonService.class));
+	}
+
+	private void initUI() {
+		opentype = PreferencesUtils.getValueFromSPMap(this, PreferencesUtils.Keys.TYPE);
+		if (TextUtils.isEmpty(opentype)){//关闭所有
+			setNotOnLine(tv_wechatpay_status);
+			setNotOnLine(tv_alipay_status);
+			rb_off.setChecked(true);
+		}else if ("alipay".equals(opentype)){//支付宝
+			setOnLine(server_status);
+			setNotOnLine(tv_wechatpay_status);
+			rb_ali.setChecked(true);
+		}else{//微信
+			setOnLine(tv_wechatpay_status);
+			setNotOnLine(tv_alipay_status);
+			rb_wechat.setChecked(true);
+		}
+	}
+
+	private void findViewById() {
+		rb_ali = findViewById(R.id.rb_ali);
+		rb_off = findViewById(R.id.rb_off);
+		rb_wechat = findViewById(R.id.rb_wechat);
+		tv_alipay_status = findViewById(R.id.tv_alipay_status);
+		server_status = findViewById(R.id.server_status);
+		tv_wechatpay_status = findViewById(R.id.tv_wechatpay_status);
+		rd_group = findViewById(R.id.rd_group);
 	}
 
 	private void setListener() {
@@ -154,14 +203,51 @@ public class MainActivity extends Activity {
 		findViewById(R.id.btn_chaxun).setOnClickListener(new View.OnClickListener() {//查询
 			@Override
 			public void onClick(View v) {
-				String cookei="zone=RZ33B; ALIPAYJSESSIONID=RZ33OFOsEETEj0fileX40CiLlteEvy63mobilegwRZ13; ssl_upgrade=0; spanner=66Nfs4uYUOGLnjElrpaMXrra34qAe212";
-				AliPayHook.tradeOrderQuery(MainActivity.this,cookei);
+//				String cookei="zone=RZ33B; ALIPAYJSESSIONID=RZ33OFOsEETEj0fileX40CiLlteEvy63mobilegwRZ13; ssl_upgrade=0; spanner=66Nfs4uYUOGLnjElrpaMXrra34qAe212";
+//				tradeOrderQuery(MainActivity.this,cookei);
+//				System.exit(0);
+				Intent intel=new Intent(MainActivity.this,DialogActivity.class);
+				intel.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intel );
+
+
 			}
 		});
 		findViewById(R.id.btn_clear).setOnClickListener(new View.OnClickListener() {//清空数据库数据
 			@Override
 			public void onClick(View v) {
 				dbManager.clearAll();
+//                ArrayList<QrCodeBean> qrCodeBeans = dbManager.FindQrcodeAll();
+//                XposedBridge.log(qrCodeBeans.toString());
+//                SingtonData.getInstance().setName("helloword");
+            }
+		});
+		rd_group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				View viewById = rd_group.findViewById(checkedId);
+				if (!viewById.isPressed()){
+					return;
+				}
+				String type="";
+				if (checkedId==R.id.rb_ali){//支付宝
+					type="alipay";
+					System.out.println("打开支付宝");
+					setOnLine(tv_alipay_status);
+					setNotOnLine(tv_wechatpay_status);
+				}else if (checkedId==R.id.rb_wechat){//微信
+					System.out.println("打开微信");
+					type="weixin";
+					setOnLine(tv_wechatpay_status);
+					setNotOnLine(tv_alipay_status);
+				}else{//关闭通道
+					System.out.println("关闭总开关");
+					type="";
+					setNotOnLine(tv_alipay_status);
+					setNotOnLine(tv_wechatpay_status);
+				}
+				PreferencesUtils.putValueToSPMap(MainActivity.this,PreferencesUtils.Keys.TYPE,type);
+				URLRequest.getInstance().send210(MainActivity.this,type);
 			}
 		});
 	}
@@ -171,10 +257,17 @@ public class MainActivity extends Activity {
 		ConFigNet configNet = new ConFigNet();
 		String uname = configNet.getuname(this, "uname");
 		((TextView)findViewById(R.id.tv_uname)).setText("当前账号 : "+uname);
+		int payorder = dbManager.getcount("payorder");
+		int qrcode = dbManager.getcount("qrcode");
+		int tradeno = dbManager.getcount("tradeno");
+		if (payorder>1000) dbManager.delete300("payorder");
+		if (qrcode>1000)dbManager.delete300("qrcode");
+		if (tradeno>1000)dbManager.delete300("tradeno");
 	}
 
 	private void regist() {
 		EventBus.getDefault().register(this);
+		SqlScoutServer.create(this, getPackageName());
 	}
 
 	public static Handler handler=new Handler(){
@@ -239,6 +332,27 @@ public class MainActivity extends Activity {
 		}
 
 	}
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void LogingBack(Logging logging){
+		PreferencesUtils.putBooleanToSPMap(MainActivity.this, PreferencesUtils.Keys.IS_LOGIN, true);
+		setOnLine(server_status);
+		initUI();
+
+	}
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void NotOnLine(NetOffLine data){
+		setNotOnLine(server_status);
+	}
+
+	public void setOnLine(TextView tv){
+		tv.setText("在线");
+		tv.setTextColor(getColor(R.color.main_blue));
+	}
+	public void setNotOnLine(TextView tv){
+		tv.setText("离线");
+		tv.setTextColor(getColor(R.color.gray_text));
+	}
+
 
 	@Override
 	protected void onResume() {
@@ -291,7 +405,7 @@ public class MainActivity extends Activity {
 					 sendmsg("打印收到的数据："+mark);
 					if (!dbManager.isExistTradeNo(no)) {
 						dbManager.addTradeNo(no, "1");
-						dbManager.addOrder(new OrderBean(money, mark, type, no, dt, "", 0));
+						dbManager.addOrder(new OrderBean(money, mark, type, no, dt, "start", 0));
 						if (type.equals("alipay")) {
 							type = "支付宝";
 						} else if (type.equals("wechat")) {
@@ -308,7 +422,6 @@ public class MainActivity extends Activity {
 					 String type = intent.getStringExtra("type");
 					 String payurl = intent.getStringExtra("payurl");
 					 DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
-
 						String dt = System.currentTimeMillis() + "";
 						dbManager.addQrCode(new QrCodeBean(money, mark, type, payurl, dt));
 						sendmsg("生成成功,金额:" + money + "备注:" + mark);
@@ -344,20 +457,25 @@ public class MainActivity extends Activity {
 		     					AbSharedUtil.putString(getApplicationContext(), type, loginid);
 		     				}
 		     			}
-		     		}
+		     		}else if (intent.getAction().contentEquals(BILLRECEIVED_COOKIE)){//收到支付宝 传过来的cookie
+					String cookie = intent.getStringExtra("cookie");
+					XposedBridge.log("通过广播收到的cookid"+cookie);
+					tradeOrderQuery(MainActivity.this,cookie);
+
+				}
         	} catch (Exception e) {
         		XposedBridge.log(e.getMessage());
 			}
         }
     }
-	public void notify(String type, final String no, String money, String mark, String dt) {
+	public void notify(String type, final String no, String money, final String mark, String dt) {
 //			String notifyurl=AbSharedUtil.getString(getApplicationContext(), "notifyurl");
 //			String notifyurl="http://www.szdpay.com/Pay/Pay/zpay_return";
 		String notifyurl=ConFigNet.notifyurl;
 //			String signkey=AbSharedUtil.getString(getApplicationContext(), "signkey");
 		String signkey=ConFigNet.signkey;
 		if(TextUtils.isEmpty(notifyurl) || TextUtils.isEmpty(signkey)){
-			sendmsg("发送异步通知异常，异步通知地址为空");
+			sendmsg("发送异步通知异常，异步通知地址为空"+notifyurl);
 			update(no, "异步通知地址为空");
 			return;
 		}
@@ -378,13 +496,13 @@ public class MainActivity extends Activity {
 			params.addBodyParameter("account", wxid);
 		}
 		params.addBodyParameter("sign", sign);
-		XposedBridge.log("开始通知服务器："+params.toString());
+		XposedBridge.log("开始通知服务器："+"mark="+mark+"&money="+money);
 		httpUtils.send(HttpMethod.POST, notifyurl, params, new RequestCallBack<String>() {
 
 			@Override
 			public void onFailure(HttpException arg0, String arg1) {
 				sendmsg("发送异步通知异常，服务器异常"+arg1);
-				update(no, arg1);
+				update(no, "errow:"+arg1);
 			}
 
 			@Override
@@ -395,6 +513,7 @@ public class MainActivity extends Activity {
 					XposedBridge.log("发送服务器成功");
 				}else{
 					sendmsg("发送异步通知失败，服务器返回"+result);
+					XposedBridge.log("发送服务器失败"+result+"备注："+mark);
 				}
 				update(no, result);
 			}
@@ -404,4 +523,59 @@ public class MainActivity extends Activity {
 		DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
 		dbManager.updateOrder(no,result);
 	}
+	public void tradeOrderQuery(final Context context, final String cookie) {
+		XposedBridge.log("cookie:" + cookie);
+		long currentTimeMillis = System.currentTimeMillis();
+		long j = currentTimeMillis - 864000000;
+		String a = AliPayHook.formatDate();
+		String str2 = "https://mbillexprod.alipay.com/enterprise/simpleTradeOrderQuery.json?beginTime=" + j + "&limitTime=" + currentTimeMillis + "&pageSize=10&pageNum=1&channelType=ALL";
+
+		HttpUtils httpUtils = new HttpUtils(15000);
+		httpUtils.configResponseTextCharset("GBK");
+		RequestParams requestParams = new RequestParams();
+		requestParams.addHeader("Cookie", cookie);
+		requestParams.addHeader("Referer", "https://render.alipay.com/p/z/merchant-mgnt/simple-order.html?beginTime=" + a + "&endTime=" + a + "&fromBill=true&channelType=ALL");
+		XposedBridge.log("-----------------------------开始请求订单信息-----------------------");
+		final long time = System.currentTimeMillis();
+		httpUtils.send(HttpRequest.HttpMethod.GET, str2, requestParams, new RequestCallBack<String>() {
+
+
+			public void onSuccess(ResponseInfo<String> responseInfo) {
+				String str = (String) responseInfo.result;
+				XposedBridge.log("成功响应时间"+(System.currentTimeMillis()-time));
+				XposedBridge.log("历史订单:" + str);
+				try {
+					JSONArray jSONArray = new JSONObject(str).getJSONObject("result").getJSONArray("list");
+					if (jSONArray != null && jSONArray.length() > 0) {
+						XposedBridge.log("最近历史订单数量:" + jSONArray.length());
+//                        JSONObject object =jSONArray.optJSONObject(0);
+//                        String tradeNo =object.optString("tradeNo");
+//                        getDetial(context,tradeNo,cookie);
+						long lastTime = 0;
+						for (int i = 0; i < jSONArray.length(); i++) {
+							JSONObject object = jSONArray.optJSONObject(i);
+							long gmtCreateStamp = object.optLong("gmtCreateStamp");
+							if (i==0)lastTime=gmtCreateStamp;
+							if (lastTime-gmtCreateStamp>3*24*60*60*1000)break;//和第一单相差3天的订单不查询
+							String tradeNo =object.optString("tradeNo");
+							if (!dbManager.isExistTradeNo(tradeNo)) {
+								XposedBridge.log("请求详细信息" + i+"tradeNo:"+tradeNo);
+								AliPayHook.getDetial(context, tradeNo, cookie);
+							}
+						}
+					}
+				} catch (Exception e) {
+					XposedBridge.log(  "获取tradeNo异常" + e.getMessage());
+				}
+			}
+
+			@Override
+			public void onFailure(com.lidroid.xutils.exception.HttpException e, String s) {
+				XposedBridge.log("错误响应时间"+(System.currentTimeMillis()-time));
+				XposedBridge.log("查询订单错误 原因："+s);
+
+			}
+		});
+	}
+
 }

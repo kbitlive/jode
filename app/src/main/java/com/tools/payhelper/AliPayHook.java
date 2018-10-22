@@ -15,6 +15,7 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.tools.payhelper.utils.DBManager;
+import com.tools.payhelper.utils.QrCodeBean;
 import com.tools.payhelper.utils.StringUtils;
 
 import org.json.JSONArray;
@@ -47,6 +48,7 @@ public class AliPayHook {
 
     public static String BILLRECEIVED_ACTION = "com.tools.payhelper.billreceived";
     public static String QRCODERECEIVED_ACTION = "com.tools.payhelper.qrcodereceived";
+    public static String BILLRECEIVED_COOKIE="com.tools.payhelper.cookie";
 
     public void hook(final ClassLoader classLoader, final Context context) {
         securityCheckHook(classLoader);
@@ -91,7 +93,10 @@ public class AliPayHook {
                         String replace = getTextCenter((String) XposedHelpers.callMethod(methodHookParam.args[0], "toString", new Object[0]), "extraInfo='", "'").replace("\\", "");
                         XposedBridge.log("商户服务"+replace);
                         if (replace.contains("收钱到账") || replace.contains("收款到账")) {
-                            tradeOrderQuery(context, getCookie(classLoader));
+//                            tradeOrderQuery(context, getCookie(classLoader));
+                            Intent intel=new Intent(BILLRECEIVED_COOKIE);
+                            intel.putExtra("cookie",getCookie(classLoader));
+                            context.sendBroadcast(intel);
                         }
                         XposedBridge.log("======商户服务end=========");
                     } catch (Exception e) {
@@ -121,7 +126,10 @@ public class AliPayHook {
                                 XposedBridge.log(extraInfo);
                                 JSONObject object = new JSONObject(extraInfo);
                                 object.put("action", "transferMessage");
-                                tradeOrderQuery(context,getCookie(classLoader));
+//                                tradeOrderQuery(context,getCookie(classLoader));
+                                Intent intel=new Intent(BILLRECEIVED_COOKIE);
+                                intel.putExtra("cookie",getCookie(classLoader));
+                                context.sendBroadcast(intel);
                             }
                         }
                     }
@@ -146,7 +154,6 @@ public class AliPayHook {
                     Field quRenField = XposedHelpers.findField(param.thisObject.getClass(), "e");
                     final Button quRenButton = (Button) quRenField.get(param.thisObject);
                     quRenButton.performClick();
-                    XposedBridge.log("打印初始值:"+CustomApplcation.getInstance().getData());
                 }
             });
 

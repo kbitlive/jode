@@ -8,6 +8,9 @@ import com.tools.payhelper.ConFigNet;
 import com.tools.payhelper.mina.BaseNetTool;
 import com.tools.payhelper.mina.MinaClient;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -40,11 +43,14 @@ public class URLRequest {
         cachedThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                byte[]data=new byte[8];
+                byte[]data=new byte[16];
                 int position=0;
                 BaseNetTool.writeInt(101,data,position);
                 position+=4;
                 BaseNetTool.writeInt(1,data,position);
+                position+=4;
+                BaseNetTool.writeLong(System.currentTimeMillis(),data,position);
+                position+=8;
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
                     MinaClient.getinstance().sendMessage(sockip,bytes,context,101);
@@ -64,9 +70,9 @@ public class URLRequest {
             public void run() {
                 int length = uname.getBytes().length;
                 String devicesID = ConFigNet.getDevicesID(context);
-                short device_len = (short) devicesID.getBytes().length;
-                short password_len = (short) password.getBytes().length;
-                byte[] data=new byte[18+length+device_len+password_len];
+                int device_len =  devicesID.getBytes().length;
+                int password_len =  password.getBytes().length;
+                byte[] data=new byte[24+length+device_len+password_len];
                 int position=0;
                 BaseNetTool.writeInt(100,data,position);
                 position+=4;
@@ -74,16 +80,16 @@ public class URLRequest {
                 position+=4;
                 BaseNetTool.writeInt(1,data,position);//支付宝 写死1
                 position+=4;
-                BaseNetTool.writeShort((short) length,data,position);
-                position+=2;
+                BaseNetTool.writeInt( length,data,position);
+                position+=4;
                 BaseNetTool.writeUTF8_2(uname,data,position);
                 position+=length;
-                BaseNetTool.writeShort(device_len,data,position);
-                position+=2;
+                BaseNetTool.writeInt(device_len,data,position);
+                position+=4;
                 BaseNetTool.writeUTF8_2(devicesID,data,position);
                 position+=device_len;
-                BaseNetTool.writeShort((short) password_len,data,position);
-                position+=2;
+                BaseNetTool.writeInt( password_len,data,position);
+                position+=4;
                 BaseNetTool.writeUTF8_2(password,data,position);
                 position+=password_len;
 //                SingletonData.getinstance().setUname(uname);
@@ -147,14 +153,14 @@ public class URLRequest {
         cachedThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                short length = (short) wechat_url.getBytes().length;
+                int length =  wechat_url.getBytes().length;
                 int slen = sign.getBytes().length;
-                byte[] data=new byte[10+length+slen];
+                byte[] data=new byte[12+length+slen];
                 int position=0;
                 BaseNetTool.writeInt(202,data,position);
                 position+=4;
-                BaseNetTool.writeShort(length,data,position);
-                position+=2;
+                BaseNetTool.writeInt(length,data,position);
+                position+=4;
                 BaseNetTool.writeUTF8_2(wechat_url,data,position);
                 position+=length;
                 BaseNetTool.writeInt(slen,data,position);
@@ -173,6 +179,34 @@ public class URLRequest {
 
             }
         });
+    }
+
+    public void send210(final Context context, final String paytype){
+        cachedThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                TcpParam tcp=new TcpParam(210);
+                try {
+                    JSONObject json=new JSONObject();
+                    json.put("payType",paytype);
+                    tcp.write(json.toString());
+                    try {
+                        byte[] bytes = BaseNetTool.appendHead2(tcp.getParam2());
+                        MinaClient.getinstance().sendMessage(ConFigNet.socketip,bytes,context,210);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        });
+
+
     }
 
     /**

@@ -17,6 +17,7 @@ public class PreferencesUtils {
 		 */
 		public static final String USERINFO = "userInfo";
 		public static final String OTHER = "other";
+		public static final String TYPE="type";
 
 
 	}

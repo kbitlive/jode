@@ -14,11 +14,11 @@ public class AlarmReceiver extends BroadcastReceiver{
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		DBManager dbManager=new DBManager(context);
-		List<OrderBean> orderBeans=dbManager.FindAllOrders();
-		for (OrderBean orderBean : orderBeans) {
-			PayHelperUtils.notify(context, orderBean.getType(), orderBean.getNo(), orderBean.getMoney(), orderBean.getMark(), orderBean.getDt());
-		}
+//		DBManager dbManager=new DBManager(context);
+//		List<OrderBean> orderBeans=dbManager.FindAllOrders();
+//		for (OrderBean orderBean : orderBeans) {
+//			PayHelperUtils.notify(context, orderBean.getType(), orderBean.getNo(), orderBean.getMoney(), orderBean.getMark(), orderBean.getDt());
+//		}
 	}
 
 }

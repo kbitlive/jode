@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_dialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_corner_share"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <TextView
+            android:text="标题"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/black"
+            android:id="@+id/tv_title" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:text="请确认是否离开"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="@dimen/common_textsize"
+                android:textColor="@color/calendar_color_black"
+                android:gravity="center"
+                android:id="@+id/tv_content" />
+
+            <TextView
+                android:text="请确认是否离开"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="3dp"
+                android:textSize="@dimen/common_textsize"
+                android:textColor="@color/gray_text"
+                android:gravity="left"
+                android:visibility="gone"
+                android:id="@+id/tv_content2" />
+        </LinearLayout>
+
+        <View style="@style/grayline" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/dialog_click_selector"
+                android:text="确定"
+                android:textColor="@color/main_blue"
+                android:padding="15dp"
+                android:gravity="center"></TextView>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -239,8 +239,18 @@ public class BaseNetTool {
 		arr[pos + 3] = (byte) (num >>> 24);
 		return arr;
 	}
-	
 
+	public static void writeLong(long longValue,byte[] arr, int pos)
+	{
+		arr[pos+7] = (byte) (longValue >> 56);
+		arr[pos+6] = (byte) (longValue >> 48);
+		arr[pos+5] = (byte) (longValue >> 40);
+		arr[pos+4] = (byte) (longValue >> 32);
+		arr[pos+3] = (byte) (longValue >> 24);
+		arr[pos+2] = (byte) (longValue >> 16);
+		arr[pos+1] = (byte) (longValue >> 8);
+		arr[pos+0] = (byte) (longValue >> 0);
+	}
     public static int byte2int(byte[] res) {   
 	    int targets = (res[0] & 0xff) | ((res[1] << 8) & 0xff00) //  
 	    | ((res[2] << 24) >>> 8) | (res[3] << 24);   

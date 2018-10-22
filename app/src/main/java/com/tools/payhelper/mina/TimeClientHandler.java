@@ -9,9 +9,11 @@ import com.tools.payhelper.MainActivity;
 import com.tools.payhelper.eventbus.AlipayReciveMoney;
 import com.tools.payhelper.eventbus.Logging;
 import com.tools.payhelper.eventbus.NetOffLine;
+import com.tools.payhelper.eventbus.ServerBroadCast;
 import com.tools.payhelper.utils.PreferencesUtils;
 import com.tools.payhelper.utils.URLRequest;
 import com.tools.payhelper.view.DialogActivity;
+import com.tools.payhelper.view.SystemDialog;
 
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
@@ -121,6 +123,16 @@ TimeClientHandler extends IoHandlerAdapter {
                         position+=4;
                         byte[] data = BaseNetTool.getUTF_8(reciveData, position, lenth);
                         URLRequest.getInstance().send103(mContext,new String(data));
+                        break;
+                    case 104://广播
+                        ServerBroadCast cast=new ServerBroadCast(reciveData);
+                        JSONObject note=new JSONObject(cast.getData());
+                        String message1 = note.getString("message");
+                        Intent intent_note=new Intent(mContext,SystemDialog.class);
+                        intent_note.putExtra("title","温馨提示");
+                        intent_note.putExtra("message",message1);
+                        intent_note.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(intent_note);
                         break;
                     case 102:
                         int status = BaseNetTool.Getint(reciveData, position);

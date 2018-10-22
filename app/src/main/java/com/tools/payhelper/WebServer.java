@@ -81,7 +81,7 @@ public class WebServer extends NanoHTTPD {
 				//mark=mark+"|"+t;
 				List<QrCodeBean> qrCodeBeans=new ArrayList<QrCodeBean>();
 				DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
-				PayHelperUtils.sendAppMsg(money, mark, type, context);
+//				PayHelperUtils.sendAppMsg(money, mark, type, context);
 				int times=0;
 				while (times<30 && qrCodeBeans.size()==0) {
 					qrCodeBeans=dbManager.FindQrCodes(mark);
@@ -143,7 +143,7 @@ public class WebServer extends NanoHTTPD {
 				
 				List<QrCodeBean> qrCodeBeans=new ArrayList<QrCodeBean>();
 				DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
-				PayHelperUtils.sendAppMsg(money, mark, type, context);
+//				PayHelperUtils.sendAppMsg(money, mark, type, context);
 				int times=0;
 				while (times<30 && qrCodeBeans.size()==0) {
 					qrCodeBeans=dbManager.FindQrCodes(mark);

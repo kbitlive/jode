@@ -30,6 +30,7 @@
             android:label="@string/app_name"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait">
+
         </activity>
         <activity
             android:name=".SettingActivity"
@@ -73,6 +74,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.DialogActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.ActivityDialog"
+            />
+        <activity
+            android:name=".view.SystemDialog"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.ActivityDialog"

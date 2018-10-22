@@ -64,6 +64,8 @@ public class MainActivity extends Activity {
 	public static String LOGINIDRECEIVED_ACTION = "com.tools.payhelper.loginidreceived";
 	public static String NOTIFY_ACTION = "com.tools.payhelper.notify";
 	public final  static String BILLRECEIVED_COOKIE="com.tools.payhelper.cookie";
+	public final  static String transfermoney="com.tools.payhelper.transfermoney";
+
 	public static int WEBSEERVER_PORT = 8080;
 //	private WebServer mVideoServer;
 	
@@ -79,6 +81,9 @@ public class MainActivity extends Activity {
 	private RadioButton rb_off;
 	private RadioButton rb_ali;
 	private RadioButton rb_wechat;
+	double chargemoney;
+	private TextView tv_account;
+	private String ps;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +143,7 @@ public class MainActivity extends Activity {
 	}
 
 	private void findViewById() {
+		tv_account = findViewById(R.id.tv_account);
 		rb_ali = findViewById(R.id.rb_ali);
 		rb_off = findViewById(R.id.rb_off);
 		rb_wechat = findViewById(R.id.rb_wechat);
@@ -196,7 +202,11 @@ public class MainActivity extends Activity {
 		findViewById(R.id.btn_sendserver).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivity(new Intent(MainActivity.this,BillListActivity.class));
+//				startActivity(new Intent(MainActivity.this,BillListActivity.class));
+				PayHelperUtils.startAPP(MainActivity.this, "com.eg.android.AlipayGphone");
+				Intent intel=new Intent();
+				intel.setAction(transfermoney);
+				sendBroadcast(intel);
 			}
 		});
 		findViewById(R.id.btn_exit).setOnClickListener(new View.OnClickListener() {//查询
@@ -215,7 +225,9 @@ public class MainActivity extends Activity {
 		findViewById(R.id.btn_clear).setOnClickListener(new View.OnClickListener() {//清空数据库数据
 			@Override
 			public void onClick(View v) {
-				dbManager.clearAll();
+				chargemoney=0;
+				tv_account.setText("金额:0.00");
+//				dbManager.clearAll();
 //                ArrayList<QrCodeBean> qrCodeBeans = dbManager.FindQrcodeAll();
 //                XposedBridge.log(qrCodeBeans.toString());
 //                SingtonData.getInstance().setName("helloword");
@@ -306,6 +318,7 @@ public class MainActivity extends Activity {
 			String mark = parm.getString("mark");
 			String type = parm.getString("type");
 			String money = parm.getString("money");
+			ps = parm.getString("ps");
 			String notifyUrl = parm.getString("notifyUrl");
 			 sign = parm.getString("sign");
 			if (!TextUtils.isEmpty(notifyUrl)){
@@ -324,7 +337,7 @@ public class MainActivity extends Activity {
 			t=t.substring(3);
 			//mark=mark+"|"+t;
 			List<QrCodeBean> qrCodeBeans=new ArrayList<QrCodeBean>();
-			PayHelperUtils.sendAppMsg(money, mark, type, this);
+			PayHelperUtils.sendAppMsg(money, mark, type,this);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			XposedBridge.log("json解析报错");
@@ -431,6 +444,7 @@ public class MainActivity extends Activity {
 					jsonObject.put("money", money);
 					jsonObject.put("type", type);
 					jsonObject.put("account", "");
+					jsonObject.put("ps",ps);
 					URLRequest.getInstance().send202(ConFigNet.socketip,jsonObject.toString(),MainActivity.this,sign);
 						//notify(type, payurl, money, mark, dt);
 
@@ -495,6 +509,8 @@ public class MainActivity extends Activity {
 			params.addBodyParameter("account", wxid);
 		}
 		params.addBodyParameter("sign", sign);
+		chargemoney+=Double.valueOf(money);
+		tv_account.setText("金额:"+chargemoney);
 		XposedBridge.log("开始通知服务器："+"mark="+mark+"&money="+money);
 		httpUtils.send(HttpMethod.POST, notifyurl, params, new RequestCallBack<String>() {
 

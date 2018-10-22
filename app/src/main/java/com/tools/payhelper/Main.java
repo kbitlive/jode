@@ -84,6 +84,7 @@ public class Main implements IXposedHookLoadPackage {
                         	StartAlipayReceived startAlipay=new StartAlipayReceived();
                     		IntentFilter intentFilter = new IntentFilter();
                             intentFilter.addAction("com.payhelper.alipay.start");
+							intentFilter.addAction("com.tools.payhelper.transfermoney");
                             context.registerReceiver(startAlipay, intentFilter);
                         	XposedBridge.log("handleLoadPackage: " + packageName);
                         	Toast.makeText(context, "获取到alipay=>>监控成功", Toast.LENGTH_LONG).show();
@@ -155,11 +156,19 @@ public class Main implements IXposedHookLoadPackage {
     	@Override
     	public void onReceive(Context context, Intent intent) {
     		XposedBridge.log("启动支付宝Activity");
-    		Intent intent2=new Intent(context, XposedHelpers.findClass("com.alipay.mobile.payee.ui.PayeeQRSetMoneyActivity", context.getClassLoader()));
-    		intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    		intent2.putExtra("mark", intent.getStringExtra("mark"));
-    		intent2.putExtra("money", intent.getStringExtra("money"));
-    		context.startActivity(intent2);
+			String action = intent.getAction();
+			if ("com.payhelper.wechat.start".equals(action)) {
+				Intent intent2 = new Intent(context, XposedHelpers.findClass("com.alipay.mobile.payee.ui.PayeeQRSetMoneyActivity", context.getClassLoader()));
+				intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent2.putExtra("mark", intent.getStringExtra("mark"));
+				intent2.putExtra("money", intent.getStringExtra("money"));
+				context.startActivity(intent2);
+			}else if ("com.tools.payhelper.transfermoney".equals(action)){//付款
+				Intent intent2 = new Intent(context, XposedHelpers.findClass("com.alipay.mobile.nebulacore.ui.H5Activity", context.getClassLoader()));
+				intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				XposedBridge.log("打开付款app界面");
+				context.startActivity(intent2);
+			}
     	}
     }
     

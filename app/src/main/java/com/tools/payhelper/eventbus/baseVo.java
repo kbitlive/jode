@@ -6,7 +6,7 @@ public class baseVo {
    protected TcpRespond mTcprespond;
     baseVo(byte[] buffer){
         mTcprespond =new TcpRespond(buffer);
-        mTcprespond.getInt();
+        cmd=mTcprespond.getInt();
     }
 
     public baseVo() {

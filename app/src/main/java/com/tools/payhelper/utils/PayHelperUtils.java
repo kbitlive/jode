@@ -129,7 +129,14 @@ public class PayHelperUtils {
 		result = "\"data:image/gif;base64," + result + "\"";
 		return result;
 	}
-	
+
+	/**
+	 *
+	 * @param money
+	 * @param mark
+	 * @param type
+	 * @param context
+	 */
 	public static void sendAppMsg(String money,String mark,String type,Context context){
 		Intent broadCastIntent = new Intent();
 		if(type.equals("alipay")){

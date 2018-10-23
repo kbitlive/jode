@@ -113,19 +113,19 @@ public class DaemonService extends Service {
                 try {
                     Thread.sleep(60*1000);//1分钟查询一次失败订单
                     ArrayList<OrderBean> orderBeans = db.FindFailOrders();
-                    XposedBridge.log("查询失败订单："+orderBeans.toString());
-                    for (int i = 0; i < orderBeans.size(); i++) {
-                        OrderBean orderBean = orderBeans.get(i);
-                        String type = orderBean.getType();
-                        if (type.equals("alipay")) {
-                            type = "支付宝";
-                        } else if (type.equals("wechat")) {
-                            type = "微信";
-                        } else if (type.equals("qq")) {
-                            type = "QQ";
-                        }
-                        notify(type,orderBean.getNo(),orderBean.getMoney(),orderBean.getMark(),orderBean.getDt());
-                    }
+//                    XposedBridge.log("查询失败订单："+orderBeans.toString());
+//                    for (int i = 0; i < orderBeans.size(); i++) {
+//                        OrderBean orderBean = orderBeans.get(i);
+//                        String type = orderBean.getType();
+//                        if (type.equals("alipay")) {
+//                            type = "支付宝";
+//                        } else if (type.equals("wechat")) {
+//                            type = "微信";
+//                        } else if (type.equals("qq")) {
+//                            type = "QQ";
+//                        }
+//                        notify(type,orderBean.getNo(),orderBean.getMoney(),orderBean.getMark(),orderBean.getDt());
+//                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

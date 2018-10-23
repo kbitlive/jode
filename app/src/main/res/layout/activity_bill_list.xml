@@ -45,18 +45,14 @@
             android:visibility="gone"
             />
     </LinearLayout>
-    <com.jwenfeng.library.pulltorefresh.PullToRefreshLayout
-        android:id="@+id/refreshLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-    <ListView
+
+    <com.tools.payhelper.view.AutoListView
         android:layout_below="@id/head"
         android:id="@+id/mlist"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        ></ListView>
-    </com.jwenfeng.library.pulltorefresh.PullToRefreshLayout>
+        ></com.tools.payhelper.view.AutoListView>
+
     <!--</android.support.v4.widget.SwipeRefreshLayout>-->
 
 </RelativeLayout>

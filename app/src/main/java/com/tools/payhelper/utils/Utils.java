@@ -3,6 +3,7 @@ package com.tools.payhelper.utils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * @Author SunnyCoffee
@@ -19,7 +20,12 @@ public class Utils {
 		String currentTime = sdf.format(date);
 		return currentTime;
 	}
-
+	public  static  String getsjctotime(Long time,String formate){
+		SimpleDateFormat sdf = new SimpleDateFormat(formate);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT+08"));
+		String date = sdf.format(new Date(time));
+		return date;
+	}
 	public static String getCurrentTime() {
 		return getCurrentTime("yyyy-MM-dd  HH:mm:ss");
 	}

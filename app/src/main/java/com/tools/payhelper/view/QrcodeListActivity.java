@@ -52,10 +52,9 @@ public class QrcodeListActivity extends Activity {
         public View getView(int position, View convertView, ViewGroup parent) {
             View inflate = getLayoutInflater().inflate(R.layout.bill_item, null);
             QrCodeBean qrCodeBean = qrCodeBeans.get(position);
-            TextView tv_type= (TextView) inflate.findViewById(R.id.tv_type);
             TextView tv_money= (TextView) inflate.findViewById(R.id.tv_money);
             TextView tv_mark= (TextView) inflate.findViewById(R.id.tv_mark);
-            tv_type.setText(qrCodeBean.getType());
+
             tv_money.setText(qrCodeBean.getMoney());
             tv_mark.setText(qrCodeBean.getMark());
             return inflate;

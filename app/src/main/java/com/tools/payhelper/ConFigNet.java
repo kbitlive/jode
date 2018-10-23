@@ -16,6 +16,8 @@ public class ConFigNet {
     public static final String signkey="123456789";
 //    public static final String returnurl="http://47.52.145.70:11188/payresult.php";
     public static final String returnurl="http://192.168.3.122:11188/payresult.php";
+//    public static final String hitory="http://192.168.3.122:11188/history.php";
+    public static final String hitory="http://47.52.125.22:5577/history.php";
 
 
     public void savedData(Context context, String value, String password){

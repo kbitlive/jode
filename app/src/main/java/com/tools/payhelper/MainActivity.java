@@ -16,7 +16,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.idescout.sql.SqlScoutServer;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -284,7 +283,6 @@ public class MainActivity extends Activity {
 
 	private void regist() {
 		EventBus.getDefault().register(this);
-		SqlScoutServer.create(this, getPackageName());
 	}
 
 	public static Handler handler=new Handler(){

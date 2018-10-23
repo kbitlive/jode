@@ -150,7 +150,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="关闭所有通道" />
+        android:text="关闭支付通道" />
 </RadioGroup>
 </LinearLayout>
     <LinearLayout

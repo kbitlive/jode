@@ -22,7 +22,7 @@
     <application
         android:name=".CustomApplcation"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
@@ -30,6 +30,7 @@
             android:label="@string/app_name"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait">
+
         </activity>
         <activity
             android:name=".SettingActivity"
@@ -56,14 +57,14 @@
 
         <activity
             android:name=".LogingActivity"
-            android:screenOrientation="portrait"
             android:launchMode="singleInstance"
-            >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity
             android:name=".view.QrcodeListActivity"
@@ -75,14 +76,12 @@
             android:name=".view.DialogActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.ActivityDialog"
-            />
+            android:theme="@style/Theme.ActivityDialog" />
         <activity
             android:name=".view.SystemDialog"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.ActivityDialog"
-            />
+            android:theme="@style/Theme.ActivityDialog" />
     </application>
 
 </manifest>

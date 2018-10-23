@@ -42,7 +42,7 @@ public class LogingActivity extends Activity implements View.OnClickListener {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_loging);
         regist();
-        if (Check.is_login(this)&&MinaClient.isConnected()){
+        if (Check.is_login(this)&&MinaClient.getinstance().isConnected()){
             startActivity(new Intent(this,MainActivity.class));
             finish();
         }
@@ -92,7 +92,13 @@ public class LogingActivity extends Activity implements View.OnClickListener {
         }else {
             if (System.currentTimeMillis()-lasttime>3000) {
                 lasttime=System.currentTimeMillis();
-                URLRequest.getInstance().send100(ConFigNet.socketip, LogingActivity.this, uname, password);
+               URLRequest.getInstance().getCachedThreadPool().execute(new Runnable() {
+                   @Override
+                   public void run() {
+                       MinaClient.getinstance().getconnect(LogingActivity.this, uname, password);
+                   }
+               });
+
             }else{
                 Toast.makeText(LogingActivity.this,"登陆太频繁",Toast.LENGTH_LONG).show();
             }

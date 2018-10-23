@@ -64,7 +64,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textSize="16sp"
-            android:text="测试QQ" />
+            android:text="测试QQ"
+            android:visibility="gone"
+            />
         <Button
             android:id="@+id/btn_clear"
             android:layout_width="wrap_content"
@@ -74,6 +76,11 @@
             android:textSize="13sp"
             android:visibility="gone"
             />
+        <Button
+            android:id="@+id/btn_bill_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="查看报表" />
         <Button
             android:id="@+id/btn_exit"
             android:layout_width="wrap_content"
@@ -87,6 +94,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         >
         <Button
             android:layout_width="wrap_content"

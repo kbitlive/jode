@@ -47,17 +47,17 @@ public class MyDecoder extends CumulativeProtocolDecoder {
 			}
 		       int length = BaseNetTool.Getint(b, posion);
 				in.reset();
-		      	 if (length+2>in.remaining()) {// 如果消息内容不够，则重置，相当于不读取 size
+		      	 if (length>in.remaining()) {// 如果消息内容不够，则重置，相当于不读取 size
 		    	   System.out.println("数据不够   数据包总长度:"+length+"当前收到的长度:"+in.remaining());
 		    	   return false ; // 父类接收新数据，以拼凑成完整数据
 			}else {
-					byte [] bytes = new byte [length+7];
+					byte [] bytes = new byte [length+5];
 //					 System.out.println("长度"+in.limit()+"管道剩余长度:"+in.remaining()+"回传过去的长度:"+bytes.length);
-					 if (in.remaining()<length+7){
+					 if (in.remaining()<length+5){
 						 System.out.println("............................包的长度不够 重新获取.........................................");
 						 return false;
 					 }
-					 in.get(bytes,0,length+7);
+					 in.get(bytes,0,length+5);
 					out.write(bytes);
 				if (in.remaining()>0) {
 					System.out.println("....................................沾包处理......................");

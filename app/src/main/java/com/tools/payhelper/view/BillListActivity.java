@@ -13,7 +13,6 @@ import com.tools.payhelper.CustomApplcation;
 import com.tools.payhelper.R;
 import com.tools.payhelper.utils.DBManager;
 import com.tools.payhelper.utils.OrderBean;
-
 import java.util.ArrayList;
 
 public class BillListActivity extends Activity {
@@ -25,10 +24,14 @@ public class BillListActivity extends Activity {
         findViewById(R.id.tv_reson).setVisibility(View.VISIBLE);
         DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
         orderBeans= dbManager.FindFailOrders();
-        ListView mlist= (ListView) findViewById(R.id.mlist);
-        mlist.setAdapter(new MyAdapter());
+//        SwipeRefreshLayout swipe_refresh_layout = findViewById(R.id.swipe_refresh_layout);
+//        ListView mlist= (ListView) findViewById(R.id.mlist);
+//        mlist.setAdapter(new MyAdapter());
+
 
     }
+
+
     private class MyAdapter extends BaseAdapter{
 
         @Override

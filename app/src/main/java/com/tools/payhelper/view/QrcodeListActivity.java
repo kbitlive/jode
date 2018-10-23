@@ -23,10 +23,10 @@ public class QrcodeListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bill_list);
-        ListView mlist= (ListView) findViewById(R.id.mlist);
-        DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
-        qrCodeBeans = dbManager.FindQrcodeAll();
-        mlist.setAdapter(new MyAdapter());
+//        ListView mlist= (ListView) findViewById(R.id.mlist);
+//        DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
+//        qrCodeBeans = dbManager.FindQrcodeAll();
+//        mlist.setAdapter(new MyAdapter());
 
 
     }

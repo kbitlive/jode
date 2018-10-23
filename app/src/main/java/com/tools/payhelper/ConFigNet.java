@@ -9,14 +9,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 public class ConFigNet {
-//    public static String socketip="47.52.145.70:11199";
-//    public static final String socketip="172.16.61.9:11199";
-    public static final String socketip="192.168.3.167:11199";
-    public static  String notifyurl="http://172.16.61.9:11188/notify.php";
-//    public static String notifyurl="http://47.52.145.70:11188/notify.php";
+    public static String socketip="47.52.145.70:11199";
+//    public static final String socketip="192.168.3.167:11199";
+//    public static  String notifyurl="http://172.16.61.9:11188/notify.php";
+    public static String notifyurl="http://47.52.145.70:11188/notify.php";
     public static final String signkey="123456789";
-//    public static final String returnurl="http://47.52.145.70:11188/payresult.php";
-    public static final String returnurl="http://172.16.61.9:11188/payresult.php";
+    public static final String returnurl="http://47.52.145.70:11188/payresult.php";
+//    public static final String returnurl="http://172.16.61.9:11188/payresult.php";
 
 
     public void savedData(Context context, String value, String password){

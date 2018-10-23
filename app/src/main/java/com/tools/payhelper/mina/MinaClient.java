@@ -46,14 +46,19 @@ public class MinaClient {
 	/**
 	 *
 	 *
-	 * @param address
-	 * @param port
+	 * @param
+	 * @param
 	 */
 
-	public synchronized void getconnect(final String address, final int port, final Context context) {
-		if (null==connector) {
-			this.ipaddress =address;
-			this.org_port =port;
+	public synchronized void getconnect(final Context context, final String uname, final String password) {
+		String[] address = ConFigNet.socketip.split(":");
+		mcontext=context;
+		int port = 0;
+		String ip=address[0];
+		port = Integer.valueOf(address[1]);
+		this.org_port =port;
+		this.ipaddress =address[0];
+		if (null==connector||(null!=cf&&!cf.isConnected())) {
 			mcontext=context;
 			connector = new NioSocketConnector();
 			connector.getFilterChain().addLast("logger", new LoggingFilter());
@@ -66,8 +71,8 @@ public class MinaClient {
 			tm = new TimeClientHandler(context,connector);
 			connector.setHandler(tm);//
 			connector.addListener(new IoListener());
-			System.out.println("重新创建");
-			cf = connector.connect(new InetSocketAddress(address, port));//
+			System.out.println(".........................开始连接服务器..........................."+ip+":"+port+"................");
+			cf = connector.connect(new InetSocketAddress(ip, port));//
 			connector.getFilterChain().addFirst("reconnection",new IoFilterAdapter(){
 				@Override
 				public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
@@ -101,55 +106,41 @@ public class MinaClient {
 						System.out.println("主动断开与服务器的连接");
 						return;
 					}
-					tag: for(;;){
-						try{
+					tag: for(;;) {
+						try {
 							Thread.sleep(3000);
 							cf = connector.connect(new InetSocketAddress(ipaddress, org_port));
 							cf.awaitUninterruptibly();// 等待连接创建成功
 							session = cf.getSession();// 获取会话
-							if(session.isConnected()){
+							if (session.isConnected()) {
 								System.out.println(".............................重连成功....................");
-								ConFigNet configNet = new ConFigNet();
-								String uname=configNet.getuname(context.getApplicationContext(),"uname");
-								String pasword=configNet.getuname(context.getApplicationContext(),"pasword");
-								System.out.println("打印账号:"+uname+"密码:"+pasword);
-								if (!TextUtils.isEmpty(uname)&&!TextUtils.isEmpty(pasword)){
-									URLRequest.getInstance().send100(configNet.socketip,mcontext,uname,pasword);
-								}else{
+								System.out.println("打印账号:" + uname + "密码:" + password);
+								if (!TextUtils.isEmpty(uname) && !TextUtils.isEmpty(password)) {
+									URLRequest.getInstance().send100( mcontext, uname, password);
+								} else {
 									System.out.println("账号或密码为空");
 								}
 								break tag;
 							}
-						}catch(Exception ex){
+						} catch (Exception ex) {
 							cf.cancel();
 							System.out.println("重连服务器登录失败,3秒再连接一次:" + ex.getMessage());
 						}
 					}
-//					isSuccess=false;
-//					tag: for(;;){
-//						Thread.sleep(3000);
-//						System.out.println("是否创建成功:"+isSuccess);
-//						if (isSuccess)break tag;
-//						reconnect(0);
-//					}
-//
-//
 				}
 			});
-//			cf.awaitUninterruptibly();// 等待连接创建成功
-//			IoSession session = cf.getSession();// 获取会话
-//			if(null!=session&&session.isConnected()) {
-//				current_id = session.getId();
-//				isSuccess=true;
-//			}else{
-//				System.out.println("创建失败");
-//			}
+			cf.awaitUninterruptibly();// 等待连接创建成功
+			if(cf.isConnected()) {
+				System.out.println(".........................服务器连接成功...........................");
+				URLRequest.getInstance().send100(context, uname, password);
+			}else{
+				System.out.println(".........................服务器连接失败...........................");
+			}
 		}
 	}
 	public  void reLease(){
 		if (null!=connector){
 			connector.dispose();
-//			cf.getSession().getConfig()
 			connector=null;
 			if (null!=cf){
 				cf.getSession().close(true);
@@ -160,12 +151,11 @@ public class MinaClient {
 		}
 	}
 
-	public static  boolean isConnected(){
+	public   boolean isConnected(){
 		try {
 			if (null==single.connector)return false;
 			if (null==single.cf)return false;
-			if (null!=single.cf.getException())return false;
-			if (single.cf.getSession().isConnected())return true;
+			if (single.cf.isConnected())return true;
 			else return false;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -187,35 +177,18 @@ public class MinaClient {
 	/**
 	 *
 	 *
-	 * @param serviceAddress
+	 * @param
 	 * @param message
 	 * @throws Exception
 	 */
-	public  void sendMessage(String serviceAddress, byte[] message, Context context) throws Exception {
-		if (null==serviceAddress||"".equals(serviceAddress)){
-//			reconnect(1);
-			return;
-		}
-		String[] address = serviceAddress.split(":");
+	public  void sendMessage( byte[] message, Context context) throws Exception {
 		mcontext=context;
-		String ip="";
-		int port = 0;
 		try {
-			ip=address[0];
-			port = Integer.valueOf(address[1]);
-			this.ipaddress =ip;
-			this.org_port =port;
-			if (null == cf) {
-				System.out.println("socket重连了"+"ip"+ip+"prot"+port);
-				getconnect(ip, port,context);
-				cf.awaitUninterruptibly();////等待连接创建完成
-			}
-			if (message.length!=0&&null!=cf.getSession()) {
+
+			if (message.length!=0&&cf.isConnected()) {
 				if (null!=tm)tm.setcontext(context);
 				try {
-					if (cf.getSession().isConnected()){
                     WriteFuture writeFuture = cf.getSession().write(IoBuffer.wrap(message)).awaitUninterruptibly();// 等待发送完成
-					}
 				} catch (Exception e) {
 					System.out.println("..............session获取失败................");
 				}

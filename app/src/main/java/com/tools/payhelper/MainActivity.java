@@ -261,6 +261,12 @@ public class MainActivity extends Activity {
 				URLRequest.getInstance().send210(MainActivity.this,type);
 			}
 		});
+		findViewById(R.id.btn_bill_list).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(MainActivity.this,BillListActivity.class));
+			}
+		});
 	}
 
 	private void initdata() {

@@ -94,10 +94,8 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
                 }else{
                     payType="weixin";
                 }
+                mlist.clear();
                 sendToServer(pages,payType);
-
-
-
             }
         });
     }
@@ -106,7 +104,7 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
         ConFigNet configNet = new ConFigNet();
         String uname = configNet.getuname(this, "uname");
         RequestParams params=new RequestParams();
-        params.addBodyParameter("deviceName","honghai001");
+        params.addBodyParameter("deviceName","honghai002");
         params.addBodyParameter("payType",payType);
         params.addBodyParameter("page",String.valueOf(page));
         params.addBodyParameter("limit","10");
@@ -122,9 +120,10 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
                     int status = json.getInt("status");
                     if (200==status){//获取成功
                         JSONObject total = json.getJSONObject("total");
+                        int count = total.getInt("count");
+                        if (0==count)return;
                         double alipayMoney = total.getDouble("alipayMoney");
                         double weixinMoney = total.getDouble("weixinMoney");
-                        int count = total.getInt("count");
                         double data=count/10.00;
                         toatolPage = (int) Math.ceil(data);
                         tv_alipay.setText("支付宝:"+alipayMoney+"元");

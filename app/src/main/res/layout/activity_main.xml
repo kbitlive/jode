@@ -18,6 +18,8 @@
     android:paddingLeft="20dp"
     android:textColor="@android:color/white"
     android:layout_weight="1"
+    android:singleLine="true"
+    android:ellipsize="end"
     />
     <TextView
         android:id="@+id/tv_account"

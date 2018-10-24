@@ -183,7 +183,6 @@ public class URLRequest {
                 position+=4;
                 BaseNetTool.writeUTF8_2(sign,data,position);
                 position+=slen;
-                System.out.println("打印url："+wechat_url+"sign:"+sign);
                 try {
                     byte[] bytes = BaseNetTool.appendHead2(data);
                     MinaClient.getinstance().sendMessage(bytes,context);

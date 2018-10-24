@@ -33,6 +33,7 @@
 #需要保留的东西
 # 保持哪些类不被混淆
 -keep public class * extends android.app.Fragment
+-keep public class * extends android.support.constraint
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Application
 -keep public class * extends android.app.Service
@@ -47,8 +48,17 @@
 -keep public class * extends android.support.v4.app.Fragment
 
 ##########JS接口类不混淆，否则执行不了
--dontwarn com.android.JsInterface.**
--keep class com.android.JsInterface.** {*; }
+-dontwarn de.robv.android.xposed.**
+-keep class de.robv.android.xposed.** {*; }
+
+-dontwarn xposed.dummy.**
+-keep class xposed.dummy.** {*; }
+-dontwarn external.org.apache.commons.lang3.**
+-keep class external.org.apache.commons.lang3.** {*; }
+
+
+-dontwarn  com.loopj.android.http.**
+-keep class com.loopj.android.http.**{*;}  #
 
 #极光推送和百度lbs android sdk一起使用proguard 混淆的问题#http的类被混淆后，导致apk定位失败，保持apache 的http类不被混淆就好了
 -dontwarn org.apache.**
@@ -60,7 +70,9 @@
   public <init>(android.content.Context, android.util.AttributeSet, int);
   public void set*(...);
  }
-
+-keepclasseswithmembers class * {   # 保持自定义控件类不被混淆
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
 #保持 native 方法不被混淆
 -keepclasseswithmembernames class * {
   native <methods>;
@@ -193,7 +205,18 @@
 -keepattributes Annotation**
 -keepattributes EnclosingMethod
 
+#EventBus begin
+#-keepattributes *Annotation* //前面已配置，这里注释
+-keepclassmembers class * {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
 
+# Only required if you use AsyncExecutor
+-keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
+    <init>(java.lang.Throwable);
+}
+#EventBus end
 
 
 

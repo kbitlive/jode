@@ -24,6 +24,7 @@ import com.tools.payhelper.R;
 import com.tools.payhelper.beans.PayItems;
 import com.tools.payhelper.utils.DBManager;
 import com.tools.payhelper.utils.OrderBean;
+import com.tools.payhelper.utils.RSAUtil;
 import com.tools.payhelper.utils.Utils;
 
 import org.json.JSONArray;
@@ -41,23 +42,6 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
     private int toatolPage;
     long lasttime=0;
     String payType="";
-    private Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            List<String> result = (List<String>) msg.obj;
-            switch (msg.what) {
-                case AutoListView.REFRESH:
-                    lstv.onLoadComplete();
-                    lstv.onRefreshComplete();
-                    mlist.clear();
-                    break;
-                case AutoListView.LOAD:
-                    lstv.onLoadComplete();
-                    break;
-            }
-            lstv.setResultSize(result.size());
-            adapter.notifyDataSetChanged();
-        };
-    };
     private AutoListView lstv;
     private MyAdapter adapter;
     private TextView tv_all;
@@ -72,7 +56,6 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
         setContentView(R.layout.activity_bill_list);
         DBManager dbManager=new DBManager(CustomApplcation.getInstance().getApplicationContext());
         orderBeans= dbManager.FindFailOrders();
-        lstv = (AutoListView) findViewById(R.id.mlist);
         findView();
         setListener();
         sendToServer(pages,"alipay");
@@ -95,6 +78,7 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
                     payType="weixin";
                 }
                 mlist.clear();
+                adapter.notifyDataSetChanged();
                 sendToServer(pages,payType);
             }
         });
@@ -103,11 +87,20 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
     private void sendToServer(int page,String payType) {
         ConFigNet configNet = new ConFigNet();
         String uname = configNet.getuname(this, "uname");
+        JSONObject json=new JSONObject();
         RequestParams params=new RequestParams();
-        params.addBodyParameter("deviceName","honghai002");
-        params.addBodyParameter("payType",payType);
-        params.addBodyParameter("page",String.valueOf(page));
-        params.addBodyParameter("limit","10");
+        try {
+            json.put("deviceName",null==uname?"":uname);
+            json.put("payType",payType);
+            json.put("page",String.valueOf(page));
+            json.put("limit","10");
+            String encrypt = RSAUtil.encryptLong(RSAUtil.DEFAULT_PRIVATE_KEY, json.toString());
+            params.addBodyParameter("data",encrypt);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         HttpUtils httpUtils=new HttpUtils(15000);
         httpUtils.send(HttpRequest.HttpMethod.POST, ConFigNet.hitory,params, new RequestCallBack<String>() {
             @Override
@@ -116,7 +109,8 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
                 try {
                     lstv.onLoadComplete();
                     lstv.onRefreshComplete();
-                    JSONObject json=new JSONObject(result);
+                    String decrypt = RSAUtil.decryptLong(RSAUtil.DEFAULT_PUBLIC_KEY, result);
+                    JSONObject json=new JSONObject(decrypt);
                     int status = json.getInt("status");
                     if (200==status){//获取成功
                         JSONObject total = json.getJSONObject("total");
@@ -165,8 +159,12 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
                         }
                         adapter.notifyDataSetChanged();
 
+                    }else{
+                        Toast.makeText(BillListActivity.this,json.getString("message"),Toast.LENGTH_LONG).show();
                     }
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -183,7 +181,10 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
     }
 
     private void findView() {
+        View inflate = getLayoutInflater().inflate(R.layout.layout_nodata, null);
         rd_group = findViewById(R.id.rd_group);
+        lstv = (AutoListView) findViewById(R.id.mlist);
+        lstv.setEmptyView(inflate);
         adapter = new MyAdapter();
         lstv.setAdapter(adapter);
         lstv.setOnRefreshListener(this);
@@ -191,12 +192,15 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
         tv_all = findViewById(R.id.tv_all);
         tv_alipay = findViewById(R.id.tv_alipay);
         tv_wechat = findViewById(R.id.tv_wechat);
+
+
     }
 
     @Override
     public void onRefresh() {
         pages=1;
         mlist.clear();
+        adapter.notifyDataSetChanged();
         sendToServer(1,payType);
         lasttime=System.currentTimeMillis();
     }
@@ -212,24 +216,6 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
             Toast.makeText(BillListActivity.this,"已加载完所有数据！",Toast.LENGTH_LONG).show();
         }
 
-    }
-    private void loadData(final int what) {
-        // 这里模拟从服务器获取数据
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(700);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Message msg = handler.obtainMessage();
-                msg.what = what;
-                msg.obj = getData();
-                handler.sendMessage(msg);
-            }
-        }).start();
     }
     // 测试数据
     public List<String> getData() {
@@ -260,16 +246,30 @@ public class BillListActivity extends Activity implements AutoListView.OnRefresh
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View inflate = getLayoutInflater().inflate(R.layout.bill_item, null);
-            TextView tv_time= (TextView) inflate.findViewById(R.id.tv_time);
-            TextView tv_money= (TextView) inflate.findViewById(R.id.tv_money);
-            TextView tv_mark= (TextView) inflate.findViewById(R.id.tv_mark);
+            ViewHolder holder;
+            if (null==convertView){
+                holder=new ViewHolder();
+                convertView= getLayoutInflater().inflate(R.layout.bill_item, null);
+                holder.tv_time=convertView.findViewById(R.id.tv_time);
+                holder.tv_money=convertView.findViewById(R.id.tv_money);
+                holder.tv_mark=convertView.findViewById(R.id.tv_mark);
+                convertView.setTag(holder);
+            }else{
+                holder= (ViewHolder) convertView.getTag();
+
+            }
+
             PayItems payItems = mlist.get(position);
-            tv_time.setText(Utils.getsjctotime(payItems.getCreateTime(),"yyyy-MM-dd HH:mm"));
-            tv_money.setText(String.valueOf(payItems.getMoney()));
-            tv_mark.setText(payItems.getMark());
+            holder.tv_time.setText(Utils.getsjctotime(payItems.getCreateTime(),"yyyy-MM-dd HH:mm"));
+            holder.tv_money.setText(String.valueOf(payItems.getMoney()));
+            holder.tv_mark.setText(payItems.getMark());
              mlist.get(position);
-            return inflate;
+            return convertView;
         }
+    }
+    private class ViewHolder{
+        TextView tv_time;
+        TextView tv_money;
+        TextView tv_mark;
     }
 }

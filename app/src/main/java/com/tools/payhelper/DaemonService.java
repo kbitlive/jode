@@ -11,6 +11,7 @@ import com.tools.payhelper.utils.DBManager;
 import com.tools.payhelper.utils.MD5;
 import com.tools.payhelper.utils.OrderBean;
 import com.tools.payhelper.utils.PayHelperUtils;
+import com.tools.payhelper.utils.RSAUtil;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -24,6 +25,9 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -152,16 +156,25 @@ public class DaemonService extends Service {
             HttpUtils httpUtils=new HttpUtils(15000);
 
             String sign=MD5.md5("dt="+dt+"&mark="+mark+"&money="+money+"&no="+no+"&type="+type+signkey);
+            JSONObject jsonParams=new JSONObject();
             RequestParams params=new RequestParams();
-            params.addBodyParameter("type", type);
-            params.addBodyParameter("no", no);
-            params.addBodyParameter("money", money);
-            params.addBodyParameter("mark", mark);
-            params.addBodyParameter("dt", dt);
-            if(!TextUtils.isEmpty(wxid)){
-                params.addBodyParameter("account", wxid);
+            try {
+                jsonParams.put("type",type);
+                jsonParams.put("no",no);
+                jsonParams.put("money",money);
+                jsonParams.put("mark",mark);
+                jsonParams.put("dt",dt);
+                if(!TextUtils.isEmpty(wxid)){
+                    jsonParams.put("account", wxid);
+                }
+                jsonParams.put("sign",sign);
+                String encrypt = RSAUtil.encryptLong(RSAUtil.DEFAULT_PRIVATE_KEY, jsonParams.toString());
+                params.addBodyParameter("data", encrypt);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            params.addBodyParameter("sign", sign);
             XposedBridge.log("开始通知服务器："+"mark="+mark+"&money="+money);
             httpUtils.send(HttpRequest.HttpMethod.POST, notifyurl, params, new RequestCallBack<String>() {
 

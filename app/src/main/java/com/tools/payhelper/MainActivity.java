@@ -33,6 +33,7 @@ import com.tools.payhelper.utils.OrderBean;
 import com.tools.payhelper.utils.PayHelperUtils;
 import com.tools.payhelper.utils.PreferencesUtils;
 import com.tools.payhelper.utils.QrCodeBean;
+import com.tools.payhelper.utils.RSAUtil;
 import com.tools.payhelper.utils.URLRequest;
 import com.tools.payhelper.view.BillListActivity;
 import com.tools.payhelper.view.DialogActivity;
@@ -315,10 +316,10 @@ public class MainActivity extends Activity {
 	}
 	String sign="";
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void EventReciveMoney(AlipayReciveMoney data){
-		System.out.println(data.getJson());
+	public void EventReciveMoney(AlipayReciveMoney data) throws Exception {
 		try {
-			JSONObject parm =new JSONObject(data.getJson());
+			String decrypt = RSAUtil.decryptLong(RSAUtil.DEFAULT_PUBLIC_KEY, data.getJson());
+			JSONObject parm =new JSONObject(decrypt);
 			String mark = parm.getString("mark");
 			String type = parm.getString("type");
 			String money = parm.getString("money");
@@ -449,7 +450,8 @@ public class MainActivity extends Activity {
 					jsonObject.put("type", type);
 					jsonObject.put("account", "");
 					jsonObject.put("ps",ps);
-					URLRequest.getInstance().send202(ConFigNet.socketip,jsonObject.toString(),MainActivity.this,sign);
+					String encrypt = RSAUtil.encryptLong(RSAUtil.DEFAULT_PRIVATE_KEY, jsonObject.toString());
+					URLRequest.getInstance().send202(ConFigNet.socketip,encrypt,MainActivity.this,sign);
 						//notify(type, payurl, money, mark, dt);
 
 	        	 }else if (intent.getAction().contentEquals(MSGRECEIVED_ACTION)) {
@@ -491,6 +493,7 @@ public class MainActivity extends Activity {
 		String notifyurl=ConFigNet.notifyurl;
 //			String signkey=AbSharedUtil.getString(getApplicationContext(), "signkey");
 		String signkey=ConFigNet.signkey;
+		HttpUtils httpUtils=new HttpUtils(15000);
 		if(TextUtils.isEmpty(notifyurl) || TextUtils.isEmpty(signkey)){
 			sendmsg("发送异步通知异常，异步通知地址为空"+notifyurl);
 			update(no, "异步通知地址为空");
@@ -500,19 +503,26 @@ public class MainActivity extends Activity {
 		if(type.equals("qq")){
 			wxid=AbSharedUtil.getString(getApplicationContext(), "qq");
 		}
-		HttpUtils httpUtils=new HttpUtils(15000);
-
 		String sign=MD5.md5("dt="+dt+"&mark="+mark+"&money="+money+"&no="+no+"&type="+type+signkey);
+		JSONObject jsonParams=new JSONObject();
 		RequestParams params=new RequestParams();
-		params.addBodyParameter("type", type);
-		params.addBodyParameter("no", no);
-		params.addBodyParameter("money", money);
-		params.addBodyParameter("mark", mark);
-		params.addBodyParameter("dt", dt);
-		if(!TextUtils.isEmpty(wxid)){
-			params.addBodyParameter("account", wxid);
+		try {
+			jsonParams.put("type",type);
+			jsonParams.put("no",no);
+			jsonParams.put("money",money);
+			jsonParams.put("mark",mark);
+			jsonParams.put("dt",dt);
+			if(!TextUtils.isEmpty(wxid)){
+				jsonParams.put("account", wxid);
+			}
+			jsonParams.put("sign",sign);
+			String encrypt = RSAUtil.encryptLong(RSAUtil.DEFAULT_PRIVATE_KEY, jsonParams.toString());
+			params.addBodyParameter("data", encrypt);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		params.addBodyParameter("sign", sign);
 		chargemoney+=Double.valueOf(money);
 		tv_account.setText("金额:"+chargemoney);
 		XposedBridge.log("开始通知服务器："+"mark="+mark+"&money="+money);
